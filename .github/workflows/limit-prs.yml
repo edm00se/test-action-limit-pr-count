@@ -9,7 +9,7 @@ jobs:
     if: ${{ !contains(github.event.pull_request.labels.*.name, 'approved') }}
     runs-on: ubuntu-latest
     permissions:
-      issues: write
+      issues: write-all
     steps:
     - name: Check open pull requests
       uses: actions/github-script@v6
