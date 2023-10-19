@@ -2,7 +2,7 @@ name: Limit Open PRs
 
 on: 
   pull_request:
-    types: [opened, reopened, synchronize]
+    types: [opened, reopened, synchronize, labeled, unlabeled]
 
 jobs:
   limit_prs:
@@ -14,6 +14,8 @@ jobs:
     - name: Get open PRs for user
       id: get_prs
       uses: octokit/request-action@v2.x
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with: 
         route: GET /repos/:repository/pulls
         repository: ${{ github.repository }}
