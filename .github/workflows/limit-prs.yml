@@ -29,8 +29,6 @@ jobs:
     - name: Fail if too many open PRs  
       if: ${{ steps.get_prs.outputs.data.length > 1 }}
       uses: actions/github-script@v6
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         github-token: ${{secrets.GITHUB_TOKEN}}
         script: |
