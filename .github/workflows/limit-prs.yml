@@ -9,41 +9,30 @@ jobs:
     if: ${{ !contains(github.event.pull_request.labels.*.name, 'approved') }}
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    
-    - name: Get open PRs for user
-      id: get_prs
-      uses: octokit/request-action@v2.x
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with: 
-        route: GET /repos/:repository/pulls
-        repository: ${{ github.repository }}
-        author: ${{ github.event.pull_request.user.login }}
-        state: open
-    
-    # - name: Check number of open PRs
-    #   if: ${{ steps.get_prs.outputs.data.length > 1 }}
-    #   run: exit 1
-      
-    - name: Fail if too many open PRs  
-      if: ${{ steps.get_prs.outputs.data.length > 1 }}
+    - name: Check open pull requests
       uses: actions/github-script@v6
       with:
-        github-token: ${{secrets.GITHUB_TOKEN}}
         script: |
-          let body = `You currently have ${process.env.PR_COUNT} open PRs. Please close some before opening new ones.`
-          github.rest.issues.createComment({
-            issue_number: context.issue.number,
+          const openPRs = await github.rest.pulls.list({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            body: body
-          })
-          github.pulls.createReview({
-            event: 'REQUEST_CHANGES',
+            state: 'open',
+            author: context.payload.sender.login,
+          });
+
+          const hasHAcceptedLabel = await github.rest.issues.listLabelsOnIssue({
             owner: context.repo.owner,
             repo: context.repo.repo,
-            pull_number: context.issue.number,
-            body: body
-          })
-          process.exit(1);
+            issue_number: context.payload.pull_request.number,
+          }).then(response => response.data.some(label => label.name === 'accepted'));
+
+          if (openPRs.data.length > 2 && !hasHAcceptedLabel) {
+            const message = `You already have ${openPRs.data.length} open pull requests. Please focus on completing those before opening new ones.`;
+            core.setFailed(message);
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: message,
+            });
+          }
