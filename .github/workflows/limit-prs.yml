@@ -14,6 +14,8 @@ jobs:
     - name: Get open PRs for user
       id: get_prs
       uses: octokit/request-action@v2.x
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with: 
         route: GET /repos/:repository/pulls
         repository: ${{ github.repository }}
@@ -27,6 +29,8 @@ jobs:
     - name: Fail if too many open PRs  
       if: ${{ steps.get_prs.outputs.data.length > 1 }}
       uses: actions/github-script@v6
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         github-token: ${{secrets.GITHUB_TOKEN}}
         script: |
