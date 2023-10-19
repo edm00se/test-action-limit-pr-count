@@ -30,11 +30,11 @@ jobs:
 
           if (openPRs.data.length > 2 && !hasHAcceptedLabel) {
             const message = `You already have ${openPRs.data.length-1} other open pull requests. Please focus on completing those before opening new ones.`;
-            core.setFailed(message);
             await github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: message
             });
+            core.setFailed(message);
           }
