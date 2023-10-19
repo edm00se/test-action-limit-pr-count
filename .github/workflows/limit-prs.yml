@@ -1,0 +1,47 @@
+name: Limit Open PRs
+
+on: 
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+jobs:
+  limit_prs:
+    if: ${{ !contains(github.event.pull_request.labels.*.name, 'approved') }}
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Get open PRs for user
+      id: get_prs
+      uses: octokit/request-action@v2.x
+      with: 
+        route: GET /repos/:repository/pulls
+        repository: ${{ github.repository }}
+        author: ${{ github.event.pull_request.user.login }}
+        state: open
+    
+    # - name: Check number of open PRs
+    #   if: ${{ steps.get_prs.outputs.data.length > 1 }}
+    #   run: exit 1
+      
+    - name: Fail if too many open PRs  
+      if: ${{ steps.get_prs.outputs.data.length > 1 }}
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{secrets.GITHUB_TOKEN}}
+        script: |
+          let body = `You currently have ${process.env.PR_COUNT} open PRs. Please close some before opening new ones.`
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: body
+          })
+          github.pulls.createReview({
+            event: 'REQUEST_CHANGES',
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            pull_number: context.issue.number,
+            body: body
+          })
+          process.exit(1);
