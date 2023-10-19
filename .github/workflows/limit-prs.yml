@@ -27,7 +27,7 @@ jobs:
           }).then(response => response.data.some(label => label.name === 'accepted'));
 
           if (openPRs.data.length > 2 && !hasHAcceptedLabel) {
-            const message = `You already have ${openPRs.data.length} open pull requests. Please focus on completing those before opening new ones.`;
+            const message = `You already have ${openPRs.data.length-1} other open pull requests. Please focus on completing those before opening new ones.`;
             core.setFailed(message);
             github.rest.issues.createComment({
               owner: context.repo.owner,
