@@ -21,6 +21,7 @@ jobs:
             author: context.payload.sender.login,
           });
           console.log('openPRs: ', openPRs);
+          process.env.GITHUB_ENV.PR_COUNT=openPRs.data.length;
           return openPRs.data.length;
     # - name: Get PR count
     #   id: get_pr_count
@@ -35,5 +36,5 @@ jobs:
         
     - name: Print PR count
       run: |
-        echo ${{ steps.get_pr_count.outputs }};
+        echo "ct: $PR_COUNT"
         echo "PR count for ${{ github.event.pull_request.user.login }} in ${{ github.repository }} is ${{ steps.get_pr_count.outputs }}"
