@@ -1,0 +1,25 @@
+name: 'Get PR count'
+
+on: 
+  pull_request:
+    types: [opened, reopened, synchronize, labeled, unlabeled]
+
+jobs:
+  pr-count:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Get PR count
+      id: get_pr_count
+      uses: octokit/request-action@v2.0.0
+      with:
+        route: GET /repos/:repository/pulls
+        repository: ${{ github.repository }}
+        author: ${{ github.event.pull_request.user.login }}
+        state: open
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Print PR count
+      run: |
+        echo "PR count for ${{ github.event.pull_request.user.login }} in ${{ github.repository }} is ${{ steps.get_pr_count.outputs.data.length }}"
