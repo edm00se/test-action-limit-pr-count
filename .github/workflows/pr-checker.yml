@@ -13,6 +13,7 @@ jobs:
       id: get_pr_count
       uses: actions/github-script@v6
       with:
+        result-encoding: string
         script: |
           const openPRs = await github.rest.pulls.list({
             owner: context.repo.owner,
@@ -36,5 +37,4 @@ jobs:
         
     - name: Print PR count
       run: |
-        echo "ct: $PR_COUNT"
         echo "PR count for ${{ github.event.pull_request.user.login }} in ${{ github.repository }} is ${{ steps.get_pr_count.outputs }}"
