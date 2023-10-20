@@ -21,7 +21,7 @@ jobs:
             author: context.payload.sender.login,
           });
           console.log('openPRs: ', openPRs);
-          return openPRs;
+          return openPRs.data.length;
     # - name: Get PR count
     #   id: get_pr_count
     #   uses: octokit/request-action@v2.0.0
