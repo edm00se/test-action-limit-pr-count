@@ -35,4 +35,5 @@ jobs:
         
     - name: Print PR count
       run: |
+        echo ${{ steps.get_pr_count.outputs }};
         echo "PR count for ${{ github.event.pull_request.user.login }} in ${{ github.repository }} is ${{ steps.get_pr_count.outputs }}"
