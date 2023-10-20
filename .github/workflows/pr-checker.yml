@@ -13,6 +13,7 @@ jobs:
       id: get_pr_count
       uses: actions/github-script@v6
       with:
+        result-encoding: string
         script: |
           const openPRs = await github.rest.pulls.list({
             owner: context.repo.owner,
@@ -20,6 +21,9 @@ jobs:
             state: 'open',
             author: context.payload.sender.login,
           });
+          console.log('openPRs: ', openPRs);
+          process.env.GITHUB_ENV.PR_COUNT=openPRs.data.length;
+          return openPRs.data.length;
     # - name: Get PR count
     #   id: get_pr_count
     #   uses: octokit/request-action@v2.0.0
@@ -33,4 +37,4 @@ jobs:
         
     - name: Print PR count
       run: |
-        echo "PR count for ${{ github.event.pull_request.user.login }} in ${{ github.repository }} is ${{ steps.get_pr_count.outputs.data.length }}"
+        echo "PR count for ${{ github.event.pull_request.user.login }} in ${{ github.repository }} is ${{ steps.get_pr_count.outputs.result }}"
