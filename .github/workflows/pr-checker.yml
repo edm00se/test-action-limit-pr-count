@@ -9,16 +9,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Get PR count
+    - name: Check open pull requests
       id: get_pr_count
-      uses: octokit/request-action@v2.0.0
+      uses: actions/github-script@v6
       with:
-        route: GET /repos/:repository/pulls
-        repository: ${{ github.repository }}
-        author: ${{ github.event.pull_request.user.login }}
-        state: open
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const openPRs = await github.rest.pulls.list({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            state: 'open',
+            author: context.payload.sender.login,
+          });
+    # - name: Get PR count
+    #   id: get_pr_count
+    #   uses: octokit/request-action@v2.0.0
+    #   with:
+    #     route: GET /repos/:repository/pulls
+    #     repository: ${{ github.repository }}
+    #     author: ${{ github.event.pull_request.user.login }}
+    #     state: open
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
     - name: Print PR count
       run: |
